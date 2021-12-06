@@ -2,73 +2,110 @@
 <head>
    <meta charset="UTF-8">
    <title>Title</title>
-
-   <style>
-    html, body, #map {
-        width: 100%;
-        height: 100%;
-        padding: 0;
-        margin: 0;
-    }
-
-    .form {
-        width: 300px;
-    }
-
-    .form .field {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    .form .field input,
-    .form .field textarea {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .form .field textarea {
-        resize: none;
-    }
-
-    .form .form-error {
-        color: red;
-    }
-
-    .form .review-list {
-        max-height: 500px;
-        overflow: scroll;
-    }
-   </style>
 </head>
 <body>
-    <div id="map"></div>
+ 
+   <div width="100%" height="100%" id="mapmap"></div>
 
-<script type="template" id="addFormTemplate">
-    <div class="review-list"></div>
-    <div class="form" data-role="review-form">
-        <h3>Отзыв:</h3>
-        <div class="field">
-            <input data-role="review-name" type="text" placeholder="Укажите ваше имя">
-        </div>
-        <div class="field">
-            <input data-role="review-place" type="text" placeholder="Укажите место">
-        </div>
-        <div class="field">
-            <textarea data-role="review-text" placeholder="Оставьте отзыв" rows="5"></textarea>
-        </div>
+<script src="https://api-maps.yandex.ru/2.1/?apikey=ваш API-ключ&lang=ru_RU" type="text/javascript">
 
-        <button data-role="review-add">Добавить</button>
-        <span class="form-error"></span>
-    </div>
-</script>
+    const placemarks = [
+        {
+            //latitude:55.75,
+            //longitude:37.63,
+            hintContent:<div class="">Вы можете оставить свой отзыв</div> ,
+            balloonContent:[
+            `
+            <h1> Отзыв </h1>,
+                <form>
+                      <input type="text" name="name" placeholder="укажите ваше имя">
+                      <input type="text" name="name" placeholder="укажите ваше место">
+                      <textarea>Оставьте отзыв</textarea>
+                      <button id="sendButton"> Добавить отзыв </button>
+               </form>
+            `
+                          ] 
+        }
+    ];   
+    geoObjects = [];
+
+    function init() {
+        var map = new ymaps.Map("mapmap", {
+    
+        center: [55.74, 37.68],
+        zoom: 11, 
+    });
+
+    for (var i = 0; i < placemarks.length; i++) {
+            geoObjects[i] = new ymaps.Placemark([placemarks[i].latitude, placemarks[i].longitude],
+            {
+                hintContent: placemarks[i].hintContent,
+                balloonContent: placemarks[i].balloonContent.join('')
+            },     
+        {
+            iconLayout: 'default#image',
+            iconImageHref: 'img/sprite.png',
+            iconImageSize: [46, 57],
+            iconImageOffset: [-23, -57],
+            iconImageClipRect: [[415, 0], [461, 57]]
+
+        });
+};
+    var clusterer = new ymaps.Clusterer({
+        clusterIcons: [
+            {
+                href: 'img/burger.png',
+                size: [100, 100],
+                offset: [-50, -50]
+            }
+        ],
+        clusterIconContentLayout: null
+    });
+    myMap.geoObjects.add(clusterer);
+    clusterer.add(geoObjects);
+    }
+    
+
+    function init() {
+        var map = new ymaps.Map("mapmap", {
+    
+        center: [55.74, 37.68],
+        zoom: 11, 
+    })};
+map.events.add('click', function (e) {
+    let newBalloon = map.balloon.open([e.get('coords'),e.get('coords')],
+{content:placemarks.balloonContent.join('')}
+);
+
+   let newPoint = new ymaps.Placemark([e.get('coords'), e.get('coords')],
+            {
+                hintContent: placemarks.hintContent,
+                balloonContent: placemarks.balloonContent.join('')
+            },     
+        {
+            iconLayout: 'default#image',
+            iconImageHref: 'img/sprite.png',
+            iconImageSize: [46, 57],
+            iconImageOffset: [-23, -57],
+            iconImageClipRect: [[415, 0], [461, 57]]
+
+        });
+
+        var myClusterer = new ymaps.Clusterer();
+        myClusterer.add(newPoint);
+        map.geoObjects.add(myClusterer);
+   });
+
+     ymaps.ready(init); 
+
+        </script>
+  
 </body>
 </html>
 
-   
 
 
-
-<!-- /* API предоставляет удобный механизм, позволяющий генерировать макеты на основе шаблонов.
+/* API предоставляет удобный механизм, позволяющий генерировать макеты на основе шаблонов.
 
 Шаблон представляет собой HTML-код, в который могут быть включены подстановки. Для создания макетов с
  помощью языка шаблонов предназначена фабрика макетов — статический объект templateLayoutFactory. 
@@ -772,4 +809,4 @@ myGeoObjects[1] = new ymaps.GeoObject({
 // Создание кластера и запрещение масштабирования карты при щелчке по кластеру
 var clusterer = new ymaps.Clusterer({ clusterDisableClickZoom: true });
 clusterer.add(myGeoObjects);
-map.geoObjects.add(clusterer); -->
+map.geoObjects.add(clusterer);
